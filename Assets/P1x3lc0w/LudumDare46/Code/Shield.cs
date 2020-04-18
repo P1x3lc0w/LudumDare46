@@ -17,12 +17,15 @@ namespace P1x3lc0w.LudumDare46
         public SpriteRenderer sprite;
 #pragma warning restore CS0649
 
+        public float Height => blockContainer.transform.localPosition.y;
+        public Color ShieldColor => sprite.color;
+
         public void SetSize(float height)
-            => SetSize(height, height * 5.0f);
+            => SetSize(height, height * 0.5f);
 
         public void SetSize(float height, float width)
         {
-            blockContainer.transform.position = new Vector3(0.0f, height, 0.0f);
+            blockContainer.transform.localPosition = new Vector3(0.0f, height, 0.0f);
             blockContainer.transform.localScale = new Vector3(width, 1.0f, 1.0f);
         }
 

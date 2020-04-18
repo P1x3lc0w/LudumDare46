@@ -24,10 +24,5 @@ namespace P1x3lc0w.LudumDare46
         {
             Instantiate(meteorPrefab, meteorContainer);
         }
-        
-        void Update()
-        {
-
-        }
     }
 }

@@ -14,6 +14,8 @@ namespace P1x3lc0w.LudumDare46
         public LineRenderer indicatorCircle;
 #pragma warning restore CS0649
 
+        public bool InputActive { get; set; }
+
         private Shield _activeShield;
 
         public Shield ActiveShield
@@ -25,8 +27,11 @@ namespace P1x3lc0w.LudumDare46
                 if(_activeShield != null)
                 {
                     indicatorCircle.gameObject.SetActive(true);
-                    indicatorCircle.startColor = Color.red;
-                    indicatorCircle.transform.localScale = new Vector3(_activeShield.transform.position.y, _activeShield.transform.position.y);
+                    Color color = Color.Lerp(_activeShield.ShieldColor, Color.black, 0.5f);
+                    indicatorCircle.startColor = color;
+                    indicatorCircle.endColor = color;
+                    float scale = _activeShield.Height;
+                    indicatorCircle.transform.localScale = new Vector3(scale, scale);
                 }
                 else
                 {
@@ -55,7 +60,7 @@ namespace P1x3lc0w.LudumDare46
 
         public void Update()
         {
-            if (_shields.Count > 0)
+            if (InputActive && _shields.Count > 0)
             {
                 if (ActiveShield != null)
                 {
