@@ -8,9 +8,9 @@ namespace P1x3lc0w.LudumDare46
     internal class GameManager : MonoBehaviour
     {
         private const float MAX_SPAWN_DELTA_TIME = 5.0f;
-        private const float MIN_SPAWN_DELTA_TIME = 3.0f;
+        private const float MIN_SPAWN_DELTA_TIME = 2.0f;
 
-        private const float MIN_SPAWN_TIME_TIME = 120.0f;
+        private const float MIN_SPAWN_TIME_TIME = 180.0f;
 
         private const float PLANET_DISTANCE = 22.69f;
 
