@@ -14,10 +14,6 @@ namespace P1x3lc0w.LudumDare46
 
         public void Start()
         {
-            shieldManager.AddShield();
-            shieldManager.AddShield();
-            SpawnMeteor();
-            SpawnMeteor();
         }
 
         public void SpawnMeteor()

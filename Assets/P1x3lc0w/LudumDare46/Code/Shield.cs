@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace P1x3lc0w.LudumDare46
 {
-    class Shield : MonoBehaviour
+    internal class Shield : MonoBehaviour
     {
-        const float MOVEMENT_SPEED = -2.0f;
+        private const float MOVEMENT_SPEED = -12.0f;
 
 #pragma warning disable CS0649
         public Transform blockContainer;
@@ -41,7 +36,7 @@ namespace P1x3lc0w.LudumDare46
 
         public void Move(float amount)
         {
-            float rotationAmount = amount * MOVEMENT_SPEED + ( 1 / Height);
+            float rotationAmount = amount * MOVEMENT_SPEED * (1 / (Height * 4));
             transform.Rotate(0.0f, 0.0f, rotationAmount, Space.Self);
         }
     }
