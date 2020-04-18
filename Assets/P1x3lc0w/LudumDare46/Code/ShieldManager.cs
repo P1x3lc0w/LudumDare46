@@ -40,27 +40,27 @@ namespace P1x3lc0w.LudumDare46
             }
         }
 
-        private List<Shield> _shields = new List<Shield>();
+        public List<Shield> Shields { get; private set; } = new List<Shield>();
 
         public void AddShield()
         {
             GameObject shieldGO = Instantiate(shieldPrefab, transform);
             Shield shield = shieldGO.GetComponent<Shield>();
 
-            shield.SetSize(_shields.Count + 1.5f);
+            shield.SetSize(Shields.Count + 1.5f);
             shield.SetColor();
 
-            if(_shields.Count == 0)
+            if(Shields.Count == 0)
             {
                 ActiveShield = shield;
             }
 
-            _shields.Add(shield);
+            Shields.Add(shield);
         }
 
         public void Update()
         {
-            if (InputActive && GameManager.GameRunning && _shields.Count > 0)
+            if (InputActive && GameManager.GameRunning && Shields.Count > 0)
             {
                 if (ActiveShield != null)
                 {
@@ -69,11 +69,11 @@ namespace P1x3lc0w.LudumDare46
 
                 if (Input.GetButtonDown("Up"))
                 {
-                    ActiveShield = _shields[(_shields.IndexOf(ActiveShield) + 1) % _shields.Count];
+                    ActiveShield = Shields[(Shields.IndexOf(ActiveShield) + 1) % Shields.Count];
                 }
                 else if (Input.GetButtonDown("Down"))
                 {
-                    ActiveShield = _shields[(_shields.IndexOf(ActiveShield) - 1 + _shields.Count) % _shields.Count];
+                    ActiveShield = Shields[(Shields.IndexOf(ActiveShield) - 1 + Shields.Count) % Shields.Count];
                 }
             }
         }

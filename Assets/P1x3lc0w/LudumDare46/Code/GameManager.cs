@@ -18,9 +18,12 @@ namespace P1x3lc0w.LudumDare46
 
         private const float EVENT_INTERVAL = 30.0f;
 
+        public const int MAX_SHIELD_COUNT = 3;
+
 #pragma warning disable CS0649
         public GameObject planetPrefab;
         public DialougeManager dialougeManager;
+        public EnergyAllocationUIManager energyAllocationUIManager;
         public CallManager callManager;
         public Transform planetContainer;
 #pragma warning restore CS0649
@@ -59,6 +62,9 @@ namespace P1x3lc0w.LudumDare46
         private float _cameraMoveTime;
 
         private int _eventCounter;
+
+        private bool _addedPlanet;
+        private bool _addedShield;
 
         public void Start()
         {
@@ -107,10 +113,10 @@ namespace P1x3lc0w.LudumDare46
             switch (Random.Range(0, 2))
             {
                 case 0:
-                    if(_planets.Count < 3)
+                    if (_planets.Count < 3)
                     {
                         AddPlanet();
-                        if (_planets.Count == 2)
+                        if (!_addedPlanet)
                         {
                             callManager.DoCall(() =>
                             {
@@ -124,6 +130,7 @@ namespace P1x3lc0w.LudumDare46
                                 () =>
                                 {
                                     GameRunning = true;
+                                    _addedPlanet = true;
                                 });
                             });
                         }
@@ -131,7 +138,31 @@ namespace P1x3lc0w.LudumDare46
                     break;
 
                 case 1:
-                    _planets[0].shieldManager.AddShield();
+                    if (!_planets.TrueForAll(planet => planet.shieldManager.Shields.Count >= MAX_SHIELD_COUNT))
+                    {
+                        if (!_addedShield)
+                        {
+                            callManager.DoCall(() =>
+                            {
+                                dialougeManager.StartDialouge(new string[] {
+                                "This is Galactic Command to Remote Control Outpost RCO-556479.",
+                                "We managed to re-route some power from other systems.",
+                                "You may assign power for an additional energy shield for one of the colonies currently under your watch.",
+                                "Switch between shields using [W] and [S].",
+                                "Galactic Command out."
+                            },
+                                () =>
+                                {
+                                    energyAllocationUIManager.Open(_planets);
+                                    _addedShield = true;
+                                });
+                            });
+                        }
+                        else
+                        {
+                            energyAllocationUIManager.Open(_planets);
+                        }
+                    }
                     break;
             }
 
@@ -140,6 +171,9 @@ namespace P1x3lc0w.LudumDare46
 
         public void Update()
         {
+            if (Input.GetKeyDown(KeyCode.F))
+                GameTime += 30.0f;
+
             if (GameRunning)
             {
                 GameTime += Time.deltaTime;
