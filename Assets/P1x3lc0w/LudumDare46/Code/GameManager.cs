@@ -1,4 +1,5 @@
-﻿using System;
+﻿using P1x3lc0w.LudumDare46.UI;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,8 +11,8 @@ namespace P1x3lc0w.LudumDare46
 {
     class GameManager : MonoBehaviour
     {
-        const float MAX_SPAWN_DELTA_TIME = 20.0f;
-        const float MIN_SPAWN_DELTA_TIME = 10.0f;
+        const float MAX_SPAWN_DELTA_TIME = 5.0f;
+        const float MIN_SPAWN_DELTA_TIME = 2.0f;
 
         const float MIN_SPAWN_TIME_TIME = 30.0f;
 
@@ -21,14 +22,17 @@ namespace P1x3lc0w.LudumDare46
 
 #pragma warning disable CS0649
         public GameObject planetPrefab;
+        public DialougeManager dialougeManager;
         public Transform planetContainer;
 #pragma warning restore CS0649
+
+        public static bool GameRunning { get; set; }
 
         public float GameTime { get; private set; }
 
         public float TimeUntilMeteor { get; private set; }
 
-        public float SpawnDeltaTime => Mathf.Lerp(MIN_SPAWN_DELTA_TIME, MAX_SPAWN_DELTA_TIME, Mathf.Min(GameTime / MIN_SPAWN_TIME_TIME, 1.0f));
+        public float SpawnDeltaTime => Mathf.Lerp(MAX_SPAWN_DELTA_TIME, MIN_SPAWN_DELTA_TIME, Mathf.Min(GameTime / MIN_SPAWN_TIME_TIME, 1.0f));
 
         private List<Planet> _plantes = new List<Planet>();
 
@@ -58,6 +62,14 @@ namespace P1x3lc0w.LudumDare46
         public void Start()
         {
             PrepareGame();
+            dialougeManager.StartDialouge(new string[] {
+                "TEST",
+                "TEEEEEEEEEEST"
+            },
+            () =>
+            {
+                GameRunning = true;
+            });
         }
 
         public void PrepareGame()
@@ -65,17 +77,18 @@ namespace P1x3lc0w.LudumDare46
             AddPlanet();
             AddPlanet();
             _plantes[0].shieldManager.AddShield();
-            TimeUntilMeteor = SpawnDeltaTime;
+            TimeUntilMeteor = 0.0f;
             GameTime = 0.0f;
         }
 
         public void AddPlanet()
         {
-            GameObject planetGO = Instantiate(planetPrefab, new Vector3(_plantes.Count * PLANET_DISTANCE, 0.0f), Quaternion.identity, planetContainer);
+            bool firstPlanet = _plantes.Count == 0;
+            GameObject planetGO = Instantiate(planetPrefab, new Vector3(_plantes.Count * PLANET_DISTANCE, firstPlanet ? 0.0f : Random.Range(-20.0f, 20.0f)), Quaternion.identity, planetContainer);
             Planet planet = planetGO.GetComponent<Planet>();
 
 
-            if (_plantes.Count == 0)
+            if (firstPlanet)
             {
                 ActivePlanet = planet;
             }
@@ -85,31 +98,34 @@ namespace P1x3lc0w.LudumDare46
 
         public void Update()
         {
-            GameTime += Time.deltaTime;
-            TimeUntilMeteor -= Time.deltaTime;
-
-            _cameraMoveTime += Time.deltaTime;
-            Vector2 camPos = Vector2.Lerp(_cameraStartPos, _cameraEndPos, _cameraMoveTime / TOTAL_CAMERA_MOVE_TIME);
-            Camera.main.transform.position = new Vector3(camPos.x, camPos.y, Camera.main.transform.position.z); 
-
-            if(TimeUntilMeteor <= 0)
+            if(GameRunning)
             {
-                _plantes[Random.Range(0, _plantes.Count)].SpawnMeteor();
+                GameTime += Time.deltaTime;
+                TimeUntilMeteor -= Time.deltaTime;
 
-                TimeUntilMeteor += SpawnDeltaTime;
-            }
+                _cameraMoveTime += Time.deltaTime;
+                Vector2 camPos = Vector2.Lerp(_cameraStartPos, _cameraEndPos, _cameraMoveTime / TOTAL_CAMERA_MOVE_TIME);
+                Camera.main.transform.position = new Vector3(camPos.x, camPos.y, Camera.main.transform.position.z);
 
-            if(_plantes.Count > 1)
-            {
-                if (Input.GetButtonDown("PlanetRight"))
+                if (TimeUntilMeteor <= 0)
                 {
-                    ActivePlanet = _plantes[(_plantes.IndexOf(ActivePlanet) + 1) % _plantes.Count];
-                }
-                else if (Input.GetButtonDown("PlanetLeft"))
-                {
-                    ActivePlanet = _plantes[(_plantes.IndexOf(ActivePlanet) - 1 + _plantes.Count) % _plantes.Count];
+                    _plantes[Random.Range(0, _plantes.Count)].SpawnMeteor();
+
+                    TimeUntilMeteor += SpawnDeltaTime;
                 }
 
+                if (_plantes.Count > 1)
+                {
+                    if (Input.GetButtonDown("PlanetRight"))
+                    {
+                        ActivePlanet = _plantes[(_plantes.IndexOf(ActivePlanet) + 1) % _plantes.Count];
+                    }
+                    else if (Input.GetButtonDown("PlanetLeft"))
+                    {
+                        ActivePlanet = _plantes[(_plantes.IndexOf(ActivePlanet) - 1 + _plantes.Count) % _plantes.Count];
+                    }
+
+                }
             }
         }
     }

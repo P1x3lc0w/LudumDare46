@@ -12,7 +12,10 @@ namespace P1x3lc0w.LudumDare46
     {
 #pragma warning disable CS0649
         public Transform blockContainer;
+        public GameObject spriteGO;
 #pragma warning restore CS0649
+
+        public bool Broken { get; private set; }
 
         private Vector2 _velocity = Vector2.zero;
 
@@ -24,8 +27,14 @@ namespace P1x3lc0w.LudumDare46
 
         public void Update()
         {
-            blockContainer.localPosition += (Vector3)(_velocity * Time.deltaTime);
-            _velocity.y += -0.1f * Time.deltaTime;
+            if(GameManager.GameRunning)
+            {
+                if (!Broken)
+                {
+                    blockContainer.localPosition += (Vector3)(_velocity * Time.deltaTime);
+                    _velocity.y += -0.1f * Time.deltaTime;
+                }
+            }
         }
 
         private void OnCollisionEnter2D(Collision2D collision)
@@ -43,6 +52,12 @@ namespace P1x3lc0w.LudumDare46
             {
                 Debug.Log("GAME OVER");
             }
+        }
+
+        void Break()
+        {
+            spriteGO.SetActive(false);
+            Broken = true;
         }
     }
 }

@@ -41,7 +41,7 @@ namespace P1x3lc0w.LudumDare46
 
         public void Move(float amount)
         {
-            float rotationAmount = amount * MOVEMENT_SPEED;
+            float rotationAmount = amount * MOVEMENT_SPEED + ( 1 / Height);
             transform.Rotate(0.0f, 0.0f, rotationAmount, Space.Self);
         }
     }

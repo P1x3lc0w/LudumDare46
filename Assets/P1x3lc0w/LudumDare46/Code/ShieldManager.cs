@@ -47,7 +47,7 @@ namespace P1x3lc0w.LudumDare46
             GameObject shieldGO = Instantiate(shieldPrefab, transform);
             Shield shield = shieldGO.GetComponent<Shield>();
 
-            shield.SetSize(_shields.Count + 1);
+            shield.SetSize(_shields.Count + 1.5f);
             shield.SetColor();
 
             if(_shields.Count == 0)
@@ -60,7 +60,7 @@ namespace P1x3lc0w.LudumDare46
 
         public void Update()
         {
-            if (InputActive && _shields.Count > 0)
+            if (InputActive && GameManager.GameRunning && _shields.Count > 0)
             {
                 if (ActiveShield != null)
                 {

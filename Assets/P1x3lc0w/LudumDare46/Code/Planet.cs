@@ -12,7 +12,7 @@ namespace P1x3lc0w.LudumDare46
         public Transform meteorContainer;
 #pragma warning restore CS0649
 
-        void Start()
+        public void Start()
         {
             shieldManager.AddShield();
             shieldManager.AddShield();
