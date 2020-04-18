@@ -40,9 +40,21 @@ namespace P1x3lc0w.LudumDare46
 
         public void Update()
         {
-            if(ActiveShield != null)
+            if (_shields.Count > 0)
             {
-                ActiveShield.Move(Input.GetAxis("Horizontal"));
+                if (ActiveShield != null)
+                {
+                    ActiveShield.Move(Input.GetAxis("Horizontal"));
+                }
+
+                if (Input.GetButtonDown("Up"))
+                {
+                    ActiveShield = _shields[(_shields.IndexOf(ActiveShield) + 1) % _shields.Count];
+                }
+                else if (Input.GetButtonDown("Down"))
+                {
+                    ActiveShield = _shields[(_shields.IndexOf(ActiveShield) - 1 + _shields.Count) % _shields.Count];
+                }
             }
         }
     }
