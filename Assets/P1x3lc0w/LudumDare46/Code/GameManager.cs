@@ -8,13 +8,15 @@ namespace P1x3lc0w.LudumDare46
     internal class GameManager : MonoBehaviour
     {
         private const float MAX_SPAWN_DELTA_TIME = 5.0f;
-        private const float MIN_SPAWN_DELTA_TIME = 2.0f;
+        private const float MIN_SPAWN_DELTA_TIME = 3.0f;
 
-        private const float MIN_SPAWN_TIME_TIME = 30.0f;
+        private const float MIN_SPAWN_TIME_TIME = 120.0f;
 
         private const float PLANET_DISTANCE = 22.69f;
 
         private const float TOTAL_CAMERA_MOVE_TIME = 0.4f;
+
+        private const float EVENT_INTERVAL = 30.0f;
 
 #pragma warning disable CS0649
         public GameObject planetPrefab;
@@ -31,7 +33,7 @@ namespace P1x3lc0w.LudumDare46
 
         public float SpawnDeltaTime => Mathf.Lerp(MAX_SPAWN_DELTA_TIME, MIN_SPAWN_DELTA_TIME, Mathf.Min(GameTime / MIN_SPAWN_TIME_TIME, 1.0f));
 
-        private List<Planet> _plantes = new List<Planet>();
+        private List<Planet> _planets = new List<Planet>();
 
         private Planet _activePlanet;
 
@@ -56,36 +58,40 @@ namespace P1x3lc0w.LudumDare46
         private Vector2 _cameraEndPos;
         private float _cameraMoveTime;
 
+        private int _eventCounter;
+
         public void Start()
         {
             PrepareGame();
             callManager.DoCall(() =>
             {
-                    dialougeManager.StartDialouge(new string[] {
+                dialougeManager.StartDialouge(new string[] {
                         "This is Galactic Command to Remote Control Outpost RCO-556479.",
-                        "Our systems have detected an incoming meteor shower near colony 477659, however the automatic energy shield control systems for your sector are currently out of order.",
+                        "Our systems have detected an incoming meteor shower near colony 477659.",
+                        "However the automatic energy shield control systems for your sector are currently out of order.",
+                        "Should a meteor impact occur, the colonist's lives are in danger.",
                         "You will need to manually control the colony's energy shield using [A] and [D].",
                         "Galactic Command out."
                     },
-                    () =>
-                    {
-                        GameRunning = true;
-                    });
+                () =>
+                {
+                    GameRunning = true;
+                }); ;
             });
         }
 
         public void PrepareGame()
         {
             AddPlanet();
-            _plantes[0].shieldManager.AddShield();
             TimeUntilMeteor = 0.0f;
             GameTime = 0.0f;
+            _eventCounter = 1;
         }
 
         public void AddPlanet()
         {
-            bool firstPlanet = _plantes.Count == 0;
-            GameObject planetGO = Instantiate(planetPrefab, new Vector3(_plantes.Count * PLANET_DISTANCE, firstPlanet ? 0.0f : Random.Range(-20.0f, 20.0f)), Quaternion.identity, planetContainer);
+            bool firstPlanet = _planets.Count == 0;
+            GameObject planetGO = Instantiate(planetPrefab, new Vector3(_planets.Count * PLANET_DISTANCE, firstPlanet ? 0.0f : Random.Range(-20.0f, 20.0f)), Quaternion.identity, planetContainer);
             Planet planet = planetGO.GetComponent<Planet>();
 
             if (firstPlanet)
@@ -93,7 +99,43 @@ namespace P1x3lc0w.LudumDare46
                 ActivePlanet = planet;
             }
 
-            _plantes.Add(planet);
+            _planets.Add(planet);
+        }
+
+        public void DoEvent()
+        {
+            switch (Random.Range(0, 2))
+            {
+                case 0:
+                    if(_planets.Count < 3)
+                    {
+                        AddPlanet();
+                        if (_planets.Count == 2)
+                        {
+                            callManager.DoCall(() =>
+                            {
+                                dialougeManager.StartDialouge(new string[] {
+                                "This is Galactic Command to Remote Control Outpost RCO-556479.",
+                                "Our systems have detected that another colony in your sector may be affected by the meteor storm.",
+                                "We will be sending you the coordinates.",
+                                "Switch between colonies using [Q] and [E].",
+                                "Galactic Command out."
+                            },
+                                () =>
+                                {
+                                    GameRunning = true;
+                                });
+                            });
+                        }
+                    }
+                    break;
+
+                case 1:
+                    _planets[0].shieldManager.AddShield();
+                    break;
+            }
+
+            _eventCounter++;
         }
 
         public void Update()
@@ -109,21 +151,26 @@ namespace P1x3lc0w.LudumDare46
 
                 if (TimeUntilMeteor <= 0)
                 {
-                    _plantes[Random.Range(0, _plantes.Count)].SpawnMeteor();
+                    _planets[Random.Range(0, _planets.Count)].SpawnMeteor();
 
                     TimeUntilMeteor += SpawnDeltaTime;
                 }
 
-                if (_plantes.Count > 1)
+                if (_planets.Count > 1)
                 {
                     if (Input.GetButtonDown("PlanetRight"))
                     {
-                        ActivePlanet = _plantes[(_plantes.IndexOf(ActivePlanet) + 1) % _plantes.Count];
+                        ActivePlanet = _planets[(_planets.IndexOf(ActivePlanet) + 1) % _planets.Count];
                     }
                     else if (Input.GetButtonDown("PlanetLeft"))
                     {
-                        ActivePlanet = _plantes[(_plantes.IndexOf(ActivePlanet) - 1 + _plantes.Count) % _plantes.Count];
+                        ActivePlanet = _planets[(_planets.IndexOf(ActivePlanet) - 1 + _planets.Count) % _planets.Count];
                     }
+                }
+
+                if (GameTime / EVENT_INTERVAL > _eventCounter)
+                {
+                    DoEvent();
                 }
             }
         }

@@ -43,7 +43,7 @@ namespace P1x3lc0w.LudumDare46
 
             if(shield != null)
             {
-                Destroy(gameObject);
+                Break();
             }
 
             Planet planet = collision.gameObject.GetComponent<Planet>();

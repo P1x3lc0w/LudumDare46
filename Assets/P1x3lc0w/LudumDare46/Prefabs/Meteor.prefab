@@ -184,7 +184,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blockContainer: {fileID: 5289941634878037855}
-  spriteGO: {fileID: 0}
+  spriteGO: {fileID: 3494015863277439123}
 --- !u!50 &2689988556771647715
 Rigidbody2D:
   serializedVersion: 4

@@ -410,3 +410,4 @@ MonoBehaviour:
   meteorPrefab: {fileID: 2057830072252241606, guid: 03fbe2d67953f85408dc4a3661e2e57e,
     type: 3}
   meteorContainer: {fileID: 5055812870252388455}
+  spriteRenderer: {fileID: 6282783121883187283}
