@@ -11,16 +11,31 @@ namespace P1x3lc0w.LudumDare46
     {
 #pragma warning disable CS0649
         public GameObject shieldPrefab;
+        public LineRenderer indicatorCircle;
 #pragma warning restore CS0649
 
-        public Shield ActiveShield { get; private set; }
+        private Shield _activeShield;
 
-        private List<Shield> _shields;
-
-        public void Start()
+        public Shield ActiveShield
         {
-            _shields = new List<Shield>();
+            get => _activeShield;
+            set
+            {
+                _activeShield = value;
+                if(_activeShield != null)
+                {
+                    indicatorCircle.gameObject.SetActive(true);
+                    indicatorCircle.startColor = Color.red;
+                    indicatorCircle.transform.localScale = new Vector3(_activeShield.transform.position.y, _activeShield.transform.position.y);
+                }
+                else
+                {
+                    indicatorCircle.gameObject.SetActive(false);
+                }
+            }
         }
+
+        private List<Shield> _shields = new List<Shield>();
 
         public void AddShield()
         {
