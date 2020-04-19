@@ -19,7 +19,6 @@ namespace P1x3lc0w.LudumDare46
         public void Start()
         {
             shieldManager.AddShield();
-            spriteRenderer.color = Color.HSVToRGB(Random.Range(0.0f, 1.0f), 0.5f, 0.5f);
         }
 
         public void SpawnMeteor()

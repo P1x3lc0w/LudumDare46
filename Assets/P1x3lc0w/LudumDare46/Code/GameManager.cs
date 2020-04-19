@@ -32,6 +32,9 @@ namespace P1x3lc0w.LudumDare46
         public GameObject winScreen;
         public GameObject loseScreen;
         public AudioSource musicAudioSource;
+        public GameObject arrowsUI;
+        public PlanetIndicatorManager planetIndicatorManager;
+        public GameObject timeDisplay;
 #pragma warning restore CS0649
 
         private bool _gameRunning;
@@ -44,6 +47,7 @@ namespace P1x3lc0w.LudumDare46
             {
                 if(_gameRunning != value)
                 {
+                    timeDisplay.SetActive(value);
                     if (value)
                     {
                         musicAudioSource.Play();
@@ -81,6 +85,8 @@ namespace P1x3lc0w.LudumDare46
 
                 _activePlanet = value;
                 _activePlanet.shieldManager.InputActive = true;
+
+                planetIndicatorManager.HighlightPlanet(_activePlanet);
 
                 _cameraStartPos = Camera.main.transform.position;
                 _cameraEndPos = _activePlanet.transform.position;
@@ -154,6 +160,10 @@ namespace P1x3lc0w.LudumDare46
             foreach (Transform t in planetContainer) Destroy(t.gameObject);
             _planets = new List<Planet>();
 
+            arrowsUI.SetActive(false);
+            planetIndicatorManager.gameObject.SetActive(false);
+            planetIndicatorManager.Reset();
+
             AddPlanet();
             Camera.main.transform.position = new Vector3(_planets[0].transform.position.x, _planets[0].transform.position.y, Camera.main.transform.position.z);
             TimeUntilMeteor = 0.0f;
@@ -168,6 +178,10 @@ namespace P1x3lc0w.LudumDare46
             bool firstPlanet = _planets.Count == 0;
             GameObject planetGO = Instantiate(planetPrefab, new Vector3(_planets.Count * PLANET_DISTANCE, firstPlanet ? 0.0f : Random.Range(-20.0f, 20.0f)), Quaternion.identity, planetContainer);
             Planet planet = planetGO.GetComponent<Planet>();
+
+            planet.spriteRenderer.color = Color.HSVToRGB(Random.Range(0.0f, 1.0f), 0.5f, 0.5f);
+
+            planetIndicatorManager.AddPlanet(planet);
 
             if (firstPlanet)
             {
@@ -199,12 +213,16 @@ namespace P1x3lc0w.LudumDare46
                             {
                                 GameRunning = true;
                                 _addedPlanet = true;
+                                arrowsUI.SetActive(true);
+                                planetIndicatorManager.gameObject.SetActive(true);
                             });
                         });
                     }
                     else
                     {
-                        eventLog.ShowEvent("The another colony may be affected by the storm. The coordinates have been added.");
+                        eventLog.ShowEvent("Another colony is affected by the storm. Coordinates have been added.");
+                        arrowsUI.SetActive(true);
+                        planetIndicatorManager.gameObject.SetActive(true);
                     }
                 }
             }
@@ -239,8 +257,6 @@ namespace P1x3lc0w.LudumDare46
 
         public void Update()
         {
-            if (Input.GetKeyDown(KeyCode.F))
-                GameTime += 30.0f;
 
             if(GameRunning || _moveCameraWhilePaused)
             {
