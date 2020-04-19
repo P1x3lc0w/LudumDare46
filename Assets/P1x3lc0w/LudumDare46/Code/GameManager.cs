@@ -7,11 +7,6 @@ namespace P1x3lc0w.LudumDare46
 {
     internal class GameManager : MonoBehaviour
     {
-        private const float MAX_SPAWN_DELTA_TIME = 5.0f;
-        private const float MIN_SPAWN_DELTA_TIME = 2.0f;
-
-        private const float MIN_SPAWN_TIME_TIME = 180.0f;
-
         private const float PLANET_DISTANCE = 22.69f;
 
         private const float TOTAL_CAMERA_MOVE_TIME = 0.4f;
@@ -26,6 +21,7 @@ namespace P1x3lc0w.LudumDare46
         public EnergyAllocationUIManager energyAllocationUIManager;
         public CallManager callManager;
         public Transform planetContainer;
+        public GameObject mainMenu;
 #pragma warning restore CS0649
 
         public static bool GameRunning { get; set; }
@@ -34,7 +30,9 @@ namespace P1x3lc0w.LudumDare46
 
         public float TimeUntilMeteor { get; private set; }
 
-        public float SpawnDeltaTime => Mathf.Lerp(MAX_SPAWN_DELTA_TIME, MIN_SPAWN_DELTA_TIME, Mathf.Min(GameTime / MIN_SPAWN_TIME_TIME, 1.0f));
+        public float SpawnDeltaTime => Mathf.Lerp(GameDifficultyInfo.MaxSpawnInterval, GameDifficultyInfo.MinSpawnInterval, Mathf.Min(GameTime / GameDifficultyInfo.DifficultyWindupTime, 1.0f));
+
+        public GameDifficultyInfo GameDifficultyInfo { get; private set; }
 
         private List<Planet> _planets = new List<Planet>();
 
@@ -68,6 +66,12 @@ namespace P1x3lc0w.LudumDare46
 
         public void Start()
         {
+        }
+
+        public void StartGame(int difficulty)
+        {
+            mainMenu.SetActive(false);
+            GameDifficultyInfo = GameDifficultyInfo.GetDifficultyInfo((GameDifficulty)difficulty);
             PrepareGame();
             callManager.DoCall(() =>
             {
@@ -110,60 +114,55 @@ namespace P1x3lc0w.LudumDare46
 
         public void DoEvent()
         {
-            switch (Random.Range(0, 2))
+            if(_eventCounter % 2 == 1)
             {
-                case 0:
-                    if (_planets.Count < 3)
+                if (_planets.Count < GameDifficultyInfo.MaxPlanets)
+                {
+                    AddPlanet();
+                    if (!_addedPlanet)
                     {
-                        AddPlanet();
-                        if (!_addedPlanet)
+                        callManager.DoCall(() =>
                         {
-                            callManager.DoCall(() =>
-                            {
-                                dialougeManager.StartDialouge(new string[] {
+                            dialougeManager.StartDialouge(new string[] {
                                 "This is Galactic Command to Remote Control Outpost RCO-556479.",
                                 "Our systems have detected that another colony in your sector may be affected by the meteor storm.",
                                 "We will be sending you the coordinates.",
                                 "Switch between colonies using [Q] and [E].",
                                 "Galactic Command out."
-                            },
-                                () =>
-                                {
-                                    GameRunning = true;
-                                    _addedPlanet = true;
-                                });
-                            });
-                        }
-                    }
-                    break;
-
-                case 1:
-                    if (!_planets.TrueForAll(planet => planet.shieldManager.Shields.Count >= MAX_SHIELD_COUNT))
-                    {
-                        if (!_addedShield)
-                        {
-                            callManager.DoCall(() =>
+                    },
+                            () =>
                             {
-                                dialougeManager.StartDialouge(new string[] {
+                                GameRunning = true;
+                                _addedPlanet = true;
+                            });
+                        });
+                    }
+                }
+            }
+            else
+            {
+                if (!_addedShield)
+                {
+                    callManager.DoCall(() =>
+                    {
+                        dialougeManager.StartDialouge(new string[] {
                                 "This is Galactic Command to Remote Control Outpost RCO-556479.",
                                 "We managed to re-route some power from other systems.",
                                 "You may assign power for an additional energy shield for one of the colonies currently under your watch.",
                                 "Switch between shields using [W] and [S].",
                                 "Galactic Command out."
-                            },
-                                () =>
-                                {
-                                    energyAllocationUIManager.Open(_planets);
-                                    _addedShield = true;
-                                });
-                            });
-                        }
-                        else
+                    },
+                        () =>
                         {
                             energyAllocationUIManager.Open(_planets);
-                        }
-                    }
-                    break;
+                            _addedShield = true;
+                        });
+                    });
+                }
+                else
+                {
+                    energyAllocationUIManager.Open(_planets);
+                }
             }
 
             _eventCounter++;
