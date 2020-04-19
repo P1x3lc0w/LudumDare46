@@ -50,7 +50,7 @@ namespace P1x3lc0w.LudumDare46
 
             if(planet != null)
             {
-                Debug.Log("GAME OVER");
+                GameManager.Instance.Lose(planet);
             }
         }
 

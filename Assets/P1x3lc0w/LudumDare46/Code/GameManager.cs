@@ -1,4 +1,5 @@
 ﻿using P1x3lc0w.LudumDare46.UI;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -15,8 +16,10 @@ namespace P1x3lc0w.LudumDare46
 
         public const int MAX_SHIELD_COUNT = 3;
 
+        public static GameManager Instance { get; private set; }
+
         const float GAME_LENGTH = 300.0f;
-        const float GAME_END_TIME = 10.0f;
+        const float GAME_END_TIME = 20.0f;
 
 #pragma warning disable CS0649
         public GameObject planetPrefab;
@@ -26,6 +29,8 @@ namespace P1x3lc0w.LudumDare46
         public Transform planetContainer;
         public GameObject mainMenu;
         public EventLog eventLog;
+        public GameObject winScreen;
+        public GameObject loseScreen;
 #pragma warning restore CS0649
 
         public static bool GameRunning { get; set; }
@@ -68,12 +73,38 @@ namespace P1x3lc0w.LudumDare46
         private bool _addedPlanet;
         private bool _addedShield;
 
+        private bool _moveCameraWhilePaused;
+
+        private int _difficulty;
+
         public void Start()
         {
+            Instance = this;
+        }
+
+        public void RestartGame()
+        {
+            winScreen.SetActive(false);
+            loseScreen.SetActive(false);
+
+            StartGame(_difficulty);
+        }
+
+        public void ReturnToMainMenu()
+        {
+            _addedPlanet = false;
+            _addedShield = false;
+            _moveCameraWhilePaused = false;
+
+            winScreen.SetActive(false);
+            loseScreen.SetActive(false);
+
+            mainMenu.SetActive(true);
         }
 
         public void StartGame(int difficulty)
         {
+            _difficulty = difficulty;
             mainMenu.SetActive(false);
             GameDifficultyInfo = GameDifficultyInfo.GetDifficultyInfo((GameDifficulty)difficulty);
             PrepareGame();
@@ -96,10 +127,15 @@ namespace P1x3lc0w.LudumDare46
 
         public void PrepareGame()
         {
+            foreach (Transform t in planetContainer) Destroy(t.gameObject);
+            _planets = new List<Planet>();
+
             AddPlanet();
+            Camera.main.transform.position = new Vector3(_planets[0].transform.position.x, _planets[0].transform.position.y, Camera.main.transform.position.z);
             TimeUntilMeteor = 0.0f;
             GameTime = 0.0f;
             _eventCounter = 1;
+            _moveCameraWhilePaused = false;
         }
 
         public void AddPlanet()
@@ -159,7 +195,7 @@ namespace P1x3lc0w.LudumDare46
                                 "You may assign power for an additional energy shield for one of the colonies currently under your watch.",
                                 "Switch between shields using [W] and [S].",
                                 "Galactic Command out."
-                    },
+                        },
                         () =>
                         {
                             energyAllocationUIManager.Open(_planets);
@@ -181,16 +217,17 @@ namespace P1x3lc0w.LudumDare46
             if (Input.GetKeyDown(KeyCode.F))
                 GameTime += 30.0f;
 
+            if(GameRunning || _moveCameraWhilePaused)
+            {
+                _cameraMoveTime += Time.deltaTime;
+                Vector2 camPos = Vector2.Lerp(_cameraStartPos, _cameraEndPos, _cameraMoveTime / TOTAL_CAMERA_MOVE_TIME);
+                Camera.main.transform.position = new Vector3(camPos.x, camPos.y, Camera.main.transform.position.z);
+            }
+
             if (GameRunning)
             {
                 GameTime += Time.deltaTime;
                 TimeUntilMeteor -= Time.deltaTime;
-
-                _cameraMoveTime += Time.deltaTime;
-                Vector2 camPos = Vector2.Lerp(_cameraStartPos, _cameraEndPos, _cameraMoveTime / TOTAL_CAMERA_MOVE_TIME);
-                Camera.main.transform.position = new Vector3(camPos.x, camPos.y, Camera.main.transform.position.z);
-
-
 
                 if (_planets.Count > 1)
                 {
@@ -227,12 +264,50 @@ namespace P1x3lc0w.LudumDare46
 
         public void Win()
         {
-
+            callManager.DoCall(() =>
+            {
+                dialougeManager.StartDialouge(new string[]
+                {
+                    "This is Galactic Command to Remote Control Outpost RCO-556479.",
+                    "The the automatic energy shield control systems for your sector are online again.",
+                    "You were sucsessfully able to protect all colonies in your sector.",
+                    "Great job out there!",
+                    "Galactic Command out."
+                }, () =>
+                {
+                    winScreen.SetActive(true);
+                });
+            });
         }
 
-        public void Loose()
+        public void Lose(Planet p)
         {
+            GameRunning = false;
+            _cameraStartPos = Camera.main.transform.position;
+            _cameraEndPos = p.transform.position;
+            _cameraMoveTime = 0.0f;
+            _moveCameraWhilePaused = true;
+            StartCoroutine(LoseCoroutine());
+        }
 
+        private IEnumerator LoseCoroutine()
+        {
+            yield return new WaitForSeconds(TOTAL_CAMERA_MOVE_TIME + 1.0f);
+            _moveCameraWhilePaused = false;
+            callManager.DoCall(() =>
+            {
+                dialougeManager.StartDialouge(new string[]
+                {
+                    "This is Galactic Command to Remote Control Outpost RCO-556479.",
+                    "The the automatic energy shield control systems for your sector are online again.",
+                    "However it appears one of the colonies under you watch was hit by a meteor.",
+                    "You will be subject to further performance review.",
+                    "Galactic Command out."
+                }, () =>
+                {
+                    loseScreen.SetActive(true);
+                });
+            });
         }
     }
 }
