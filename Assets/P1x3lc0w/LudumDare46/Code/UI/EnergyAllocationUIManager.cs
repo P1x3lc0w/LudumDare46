@@ -16,7 +16,7 @@ namespace P1x3lc0w.LudumDare46.UI
 
         public void Open(IEnumerable<Planet> planets)
         {
-            GameManager.GameRunning = false;
+            GameManager.Instance.GameRunning = false;
 
             foreach (Transform t in planetEnergyAllocationButtonContainer)
                 Destroy(t.gameObject);
@@ -32,7 +32,7 @@ namespace P1x3lc0w.LudumDare46.UI
         public void Close()
         {
             gameObject.SetActive(false);
-            GameManager.GameRunning = true;
+            GameManager.Instance.GameRunning = true;
         }
     }
 }

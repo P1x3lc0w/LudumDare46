@@ -37,7 +37,7 @@ namespace P1x3lc0w.LudumDare46.UI
 
         public void Update()
         {
-            if (GameManager.GameRunning)
+            if (GameManager.Instance.GameRunning)
             {
                 _showTime += Time.deltaTime;
 

@@ -13,6 +13,7 @@ namespace P1x3lc0w.LudumDare46
 #pragma warning disable CS0649
         public Transform blockContainer;
         public GameObject spriteGO;
+        public AudioSource explosionAudioSource;
 #pragma warning restore CS0649
 
         public bool Broken { get; private set; }
@@ -27,7 +28,7 @@ namespace P1x3lc0w.LudumDare46
 
         public void Update()
         {
-            if(GameManager.GameRunning)
+            if(GameManager.Instance.GameRunning)
             {
                 if (!Broken)
                 {
@@ -56,6 +57,7 @@ namespace P1x3lc0w.LudumDare46
 
         void Break()
         {
+            explosionAudioSource.Play();
             spriteGO.SetActive(false);
             Broken = true;
         }

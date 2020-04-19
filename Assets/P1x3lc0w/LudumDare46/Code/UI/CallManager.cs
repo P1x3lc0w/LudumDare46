@@ -14,7 +14,7 @@ namespace P1x3lc0w.LudumDare46.UI
 
         public void DoCall(Action callback)
         {
-            GameManager.GameRunning = false;
+            GameManager.Instance.GameRunning = false;
             _callback = callback;
             gameObject.SetActive(true);
         }

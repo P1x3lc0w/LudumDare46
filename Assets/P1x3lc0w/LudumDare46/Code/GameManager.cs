@@ -31,9 +31,33 @@ namespace P1x3lc0w.LudumDare46
         public EventLog eventLog;
         public GameObject winScreen;
         public GameObject loseScreen;
+        public AudioSource musicAudioSource;
 #pragma warning restore CS0649
 
-        public static bool GameRunning { get; set; }
+        private bool _gameRunning;
+
+        public bool GameRunning
+        {
+            get => _gameRunning;
+
+            set
+            {
+                if(_gameRunning != value)
+                {
+                    if (value)
+                    {
+                        musicAudioSource.Play();
+                    }
+                    else
+                    {
+                        musicAudioSource.Pause();
+                    }
+                }
+
+                _gameRunning = value;
+            }
+
+        }
 
         public float GameTime { get; private set; }
 
@@ -136,6 +160,7 @@ namespace P1x3lc0w.LudumDare46
             GameTime = 0.0f;
             _eventCounter = 1;
             _moveCameraWhilePaused = false;
+            musicAudioSource.Stop();
         }
 
         public void AddPlanet()

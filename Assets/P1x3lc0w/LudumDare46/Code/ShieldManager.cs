@@ -60,7 +60,7 @@ namespace P1x3lc0w.LudumDare46
 
         public void Update()
         {
-            if (InputActive && GameManager.GameRunning && Shields.Count > 0)
+            if (InputActive && GameManager.Instance.GameRunning && Shields.Count > 0)
             {
                 if (ActiveShield != null)
                 {

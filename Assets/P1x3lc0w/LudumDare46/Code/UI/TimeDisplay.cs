@@ -12,7 +12,7 @@ namespace P1x3lc0w.LudumDare46.UI
 
         public void Update()
         {
-            if (GameManager.GameRunning)
+            if (GameManager.Instance.GameRunning)
                 timeText.text = $"{(int)(gameManager.GameTime / 60)}:{(gameManager.GameTime % 60.0f).ToString("00")}:{((gameManager.GameTime % 1.0f) * 99.0f).ToString("00")}";
         }
     }

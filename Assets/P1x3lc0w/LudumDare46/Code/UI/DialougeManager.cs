@@ -24,7 +24,7 @@ namespace P1x3lc0w.LudumDare46.UI
             _callback = callback;
             _dialougeIndex = 0;
             dialougeText.text = _dialouge[0];
-            GameManager.GameRunning = false;
+            GameManager.Instance.GameRunning = false;
             gameObject.SetActive(true);
         }
 
