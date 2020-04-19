@@ -15,6 +15,9 @@ namespace P1x3lc0w.LudumDare46
 
         public const int MAX_SHIELD_COUNT = 3;
 
+        const float GAME_LENGTH = 300.0f;
+        const float GAME_END_TIME = 10.0f;
+
 #pragma warning disable CS0649
         public GameObject planetPrefab;
         public DialougeManager dialougeManager;
@@ -22,6 +25,7 @@ namespace P1x3lc0w.LudumDare46
         public CallManager callManager;
         public Transform planetContainer;
         public GameObject mainMenu;
+        public EventLog eventLog;
 #pragma warning restore CS0649
 
         public static bool GameRunning { get; set; }
@@ -129,13 +133,17 @@ namespace P1x3lc0w.LudumDare46
                                 "We will be sending you the coordinates.",
                                 "Switch between colonies using [Q] and [E].",
                                 "Galactic Command out."
-                    },
+                            },
                             () =>
                             {
                                 GameRunning = true;
                                 _addedPlanet = true;
                             });
                         });
+                    }
+                    else
+                    {
+                        eventLog.ShowEvent("The another colony may be affected by the storm. The coordinates have been added.");
                     }
                 }
             }
@@ -182,12 +190,7 @@ namespace P1x3lc0w.LudumDare46
                 Vector2 camPos = Vector2.Lerp(_cameraStartPos, _cameraEndPos, _cameraMoveTime / TOTAL_CAMERA_MOVE_TIME);
                 Camera.main.transform.position = new Vector3(camPos.x, camPos.y, Camera.main.transform.position.z);
 
-                if (TimeUntilMeteor <= 0)
-                {
-                    _planets[Random.Range(0, _planets.Count)].SpawnMeteor();
 
-                    TimeUntilMeteor += SpawnDeltaTime;
-                }
 
                 if (_planets.Count > 1)
                 {
@@ -201,11 +204,35 @@ namespace P1x3lc0w.LudumDare46
                     }
                 }
 
-                if (GameTime / EVENT_INTERVAL > _eventCounter)
+                if(GameTime < GAME_LENGTH)
                 {
-                    DoEvent();
+                    if (TimeUntilMeteor <= 0)
+                    {
+                        _planets[Random.Range(0, _planets.Count)].SpawnMeteor();
+
+                        TimeUntilMeteor += SpawnDeltaTime;
+                    }
+
+                    if (GameTime / EVENT_INTERVAL > _eventCounter)
+                    {
+                        DoEvent();
+                    }
+                }
+                else if (GameTime >= GAME_LENGTH + GAME_END_TIME)
+                {
+                    Win();
                 }
             }
+        }
+
+        public void Win()
+        {
+
+        }
+
+        public void Loose()
+        {
+
         }
     }
 }
