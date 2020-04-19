@@ -1294,7 +1294,7 @@ MonoBehaviour:
   musicAudioSource: {fileID: 519420030}
   arrowsUI: {fileID: 1811267029}
   planetIndicatorManager: {fileID: 2082634470}
-  timeDisplay: {fileID: 0}
+  timeDisplay: {fileID: 1190047890}
 --- !u!1 &762094562
 GameObject:
   m_ObjectHideFlags: 0
